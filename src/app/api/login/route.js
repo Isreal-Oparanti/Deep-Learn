@@ -62,6 +62,7 @@ export async function POST(req) {
         role: user.role,
         name: user.name,
         email: user.email,
+        profileImage: user.profileImage || null,
       },
       JWT_SECRET,
       { expiresIn: "7d" }
