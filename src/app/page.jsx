@@ -26,7 +26,7 @@ export default function Home() {
               <button className="flex min-w-[90px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-transparent text-[#001f3f] text-base font-bold leading-normal tracking-wide border-2 border-[#001f3f] hover:bg-[#001f3f] hover:text-white transition-all duration-300">
                 <a href="/login"><span className="truncate">Login</span></a>
               </button>
-              <button className="flex min-w-[90px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-[#4677B8] text-white text-base font-bold leading-normal tracking-wide shadow-lg hover:shadow-xl hover:bg-[#ffd700] hover:text-[#001f3f] transition-all duration-300">
+              <button className="flex min-w-[90px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-[#4677B8] text-white text-base font-bold leading-normal tracking-wide shadow-lg hover:shadow-xl  transition-all duration-300">
                 <a href="/register"><span className="truncate">Sign Up</span></a>
               </button>
             </div>

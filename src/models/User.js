@@ -16,6 +16,8 @@ const UserSchema = new mongoose.Schema(
     interestedCourses: { type: [String], default: [] },
     organization: String,
     position: String,
+    points: { type: Number, default: 0 }, // Added points field
+    taskAttempts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TaskAttempt' }]
   },
   { timestamps: true }
 );

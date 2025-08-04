@@ -1,60 +1,43 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import Sidebar from '@/components/Sidebar';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function TaskVerification() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [isRecording, setIsRecording] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [anomalyCount, setAnomalyCount] = useState(0);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [anomalyMessages, setAnomalyMessages] = useState([]);
   const screenVideoRef = useRef(null);
   const faceVideoRef = useRef(null);
   const timerRef = useRef(null);
   const anomalyTimerRef = useRef(null);
   const pasteCountRef = useRef(0);
   const lastPasteTimeRef = useRef(0);
+  const mediaRecorderRef = useRef(null);
+  const chunksRef = useRef([]);
+  const screenStreamRef = useRef(null);
+  const faceStreamRef = useRef(null);
 
-  // Simulate recording and anomaly detection
+  // Initialize media streams and recording
   useEffect(() => {
-    if (isRecording) {
-      // Start recording timer
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-
-      // Simulate periodic anomaly checks
-      anomalyTimerRef.current = setInterval(() => {
-        // Random anomalies (30% chance)
-        if (Math.random() < 0.3) {
-          setShowWarning(true);
-          setAnomalyCount(prev => prev + 1);
-          setTimeout(() => setShowWarning(false), 5000);
-        }
-      }, 10000);
-
-      // Set up paste detection
-      document.addEventListener('paste', handlePaste);
-      
-      // Set up visibility change detection
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-    } else {
-      clearInterval(timerRef.current);
-      clearInterval(anomalyTimerRef.current);
-      document.removeEventListener('paste', handlePaste);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }
-
     return () => {
-      clearInterval(timerRef.current);
-      clearInterval(anomalyTimerRef.current);
-      document.removeEventListener('paste', handlePaste);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      // Cleanup when component unmounts
+      if (screenStreamRef.current) {
+        screenStreamRef.current.getTracks().forEach(track => track.stop());
+      }
+      if (faceStreamRef.current) {
+        faceStreamRef.current.getTracks().forEach(track => track.stop());
+      }
     };
-  }, [isRecording]);
+  }, []);
 
   const handlePaste = (e) => {
     const now = Date.now();
-    // Detect rapid paste events (more than 2 in 5 seconds)
     if (now - lastPasteTimeRef.current < 5000) {
       pasteCountRef.current++;
       if (pasteCountRef.current > 2) {
@@ -75,18 +58,109 @@ export default function TaskVerification() {
   const triggerAnomaly = (message) => {
     setShowWarning(true);
     setAnomalyCount(prev => prev + 1);
-    console.warn("ANOMALY:", message);
+    setAnomalyMessages(prev => [...prev, message]);
     setTimeout(() => setShowWarning(false), 5000);
   };
 
-  const toggleRecording = () => {
-    if (!isRecording) {
+  const startRecording = async () => {
+    try {
+      // Get screen stream
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({ 
+        video: { cursor: "always" },
+        audio: true
+      });
+      
+      // Get face camera stream
+      const faceStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "user" },
+        audio: false
+      });
+
+      // Set video elements
+      screenVideoRef.current.srcObject = screenStream;
+      faceVideoRef.current.srcObject = faceStream;
+
+      // Combine streams
+      const combinedStream = new MediaStream([
+        ...screenStream.getTracks(),
+        ...faceStream.getTracks()
+      ]);
+
+      // Create media recorder
+      mediaRecorderRef.current = new MediaRecorder(combinedStream, {
+        mimeType: 'video/webm;codecs=vp9,opus'
+      });
+
+      // Collect data chunks
+      chunksRef.current = [];
+      mediaRecorderRef.current.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorderRef.current.onstop = async () => {
+        const blob = new Blob(chunksRef.current, { type: 'video/webm' });
+        await saveRecordingMetadata(blob);
+      };
+
+      mediaRecorderRef.current.start(1000); // Capture 1s chunks
+
+      // Store references for cleanup
+      screenStreamRef.current = screenStream;
+      faceStreamRef.current = faceStream;
+
+      // Handle screen sharing stop
+      screenStream.getVideoTracks()[0].onended = () => {
+        stopRecording();
+      };
+
+      setIsRecording(true);
       setRecordingTime(0);
       setAnomalyCount(0);
+      setAnomalyMessages([]);
       pasteCountRef.current = 0;
       lastPasteTimeRef.current = 0;
+      
+    } catch (error) {
+      console.error("Recording failed to start:", error);
+      triggerAnomaly("Could not start recording. Please allow permissions.");
     }
-    setIsRecording(!isRecording);
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop();
+    }
+    
+    if (screenStreamRef.current) {
+      screenStreamRef.current.getTracks().forEach(track => track.stop());
+    }
+    if (faceStreamRef.current) {
+      faceStreamRef.current.getTracks().forEach(track => track.stop());
+    }
+    
+    setIsRecording(false);
+  };
+
+  const saveRecordingMetadata = async (blob) => {
+    const formData = new FormData();
+    formData.append('recording', blob, 'recording.webm');
+    formData.append('duration', recordingTime);
+    formData.append('anomalies', JSON.stringify(anomalyMessages));
+    formData.append('userId', session.user.id);
+
+    try {
+      const response = await fetch('/api/tasks/recording', {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        router.push(`/tasks/defense?attemptId=${data.attemptId}`);
+      }
+    } catch (error) {
+      console.error('Failed to save recording metadata:', error);
+    }
   };
 
   const formatTime = (seconds) => {
@@ -94,6 +168,39 @@ export default function TaskVerification() {
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
+
+  // Anomaly detection
+  useEffect(() => {
+    if (isRecording) {
+      // Start recording timer
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+
+      // Simulate periodic anomaly checks
+      anomalyTimerRef.current = setInterval(() => {
+        if (Math.random() < 0.3) {
+          triggerAnomaly("Behavioral anomaly detected!");
+        }
+      }, 10000);
+
+      // Set up event listeners
+      document.addEventListener('paste', handlePaste);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+    } else {
+      clearInterval(timerRef.current);
+      clearInterval(anomalyTimerRef.current);
+      document.removeEventListener('paste', handlePaste);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+    return () => {
+      clearInterval(timerRef.current);
+      clearInterval(anomalyTimerRef.current);
+      document.removeEventListener('paste', handlePaste);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [isRecording]);
 
   return (
     <Sidebar>
@@ -128,23 +235,21 @@ export default function TaskVerification() {
                 <div className="mb-6">
                   <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-slate-900 shadow-inner">
                     {/* Screen feed */}
-                    <div
-                      className="h-full w-full bg-cover bg-center"
-                      style={{
-                        backgroundImage:
-                          "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC0_4bELXQqudtrJm3GlRE5FPkqd_yaTUxM89iyJHMrYSSLj6fNJ8QW4dkwVg1hcFIn7cp4Y0gXM8pr56E9xLhREkUcBYOtT1uw1clUSWEIQD28TBwFK3g1Ogiw3zM0vkQTDM0643DI-Z8KNbTtNS7As7RmAkRmBdMfhnPRe5JR8IVheGUraSLncY1kgqWrXEsT-9LUvaIoPzc3j0FoiUmMkaqwuJOtTNxbN3WGEsV4YNUrtPy66zguNc7-75s1PoX2ZiKZBEEzKjg')",
-                      }}
-                    ></div>
-
+                    <video 
+                      ref={screenVideoRef}
+                      autoPlay
+                      muted
+                      className="h-full w-full object-contain bg-black"
+                    />
+                    
                     {/* Face feed */}
                     <div className="absolute bottom-4 right-4 w-1/4 aspect-square overflow-hidden rounded-lg border-2 border-white/50 shadow-lg">
-                      <div
-                        className="h-full w-full bg-cover bg-center"
-                        style={{
-                          backgroundImage:
-                            "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAMlgQIM3hkEG5myEFNrj7H_2kyqTEeW4f8u-svqEP1KriRebGxE0TTv_r3IGyZAqT-Tu6SKAPwsLaDUvsbonZhJh8XqAXlmP73Cuvv8iCRpWY14GWKrwn-GYGB6K1zy0-mWIE6ek2nIbVns4J05HQwsUANZmLO8P-D7ixqSIhCFsnsBE7NghxShqmWZpbrASERRmDJtrQdlYF_paZD7qKexhDFNGpGLW8NcCOKjKHosNS-0cNrc3Hr1kea_zPWsoB_SQW3fhn8MPk')",
-                        }}
-                      ></div>
+                      <video 
+                        ref={faceVideoRef}
+                        autoPlay
+                        muted
+                        className="h-full w-full object-cover"
+                      />
                     </div>
 
                     {/* Recording indicator and timer */}
@@ -159,7 +264,7 @@ export default function TaskVerification() {
 
                     {/* Record button */}
                     <button
-                      onClick={toggleRecording}
+                      onClick={isRecording ? stopRecording : startRecording}
                       className={`group absolute flex size-16 md:size-20 items-center justify-center rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
                         isRecording
                           ? "bg-red-500/80 hover:bg-red-600/80"
@@ -184,14 +289,14 @@ export default function TaskVerification() {
                       <span className="material-icons animate-pulse text-xl">
                         warning_amber
                       </span>
-                      <p>Keystroke rhythm anomaly detected!</p>
+                      <p>Anomaly detected!</p>
                     </div>
                   </div>
                 )}
 
                 <div className="flex flex-col items-center gap-4">
                   <button
-                    onClick={toggleRecording}
+                    onClick={isRecording ? stopRecording : startRecording}
                     className={`flex w-full max-w-xs items-center justify-center gap-2 overflow-hidden rounded-xl px-6 py-3 text-base font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl ${
                       isRecording
                         ? "bg-red-500 shadow-red-500/30 hover:bg-red-600"
@@ -210,7 +315,10 @@ export default function TaskVerification() {
                     <div className="text-slate-500">
                       Anomalies: <span className="font-semibold">{anomalyCount}</span>
                     </div>
-                    <button className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-800">
+                    <button 
+                      className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-800"
+                      onClick={() => router.push('/tasks/defense')}
+                    >
                       Proceed to Next Step
                     </button>
                   </div>
