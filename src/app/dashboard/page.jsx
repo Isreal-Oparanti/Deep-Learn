@@ -86,15 +86,22 @@ export default function Dashboard() {
   return (
     
       <Sidebar>
+        <div
+        className={`w-full min-h-screen p-8 bg-white/80 backdrop-blur-sm `}
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563EB' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          fontFamily: "'Lexend', 'Noto Sans', sans-serif",
+        }}
+      >
       <div className="flex-1 overflow-y-auto">
-        <div className="p-8">
+         
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column (2/3 width on large screens) */}
             <div className="lg:col-span-2 space-y-8">
               {/* Welcome Banner */}
-              <div className="bg-slate-50 p-6 rounded-2xl flex items-center gap-6 shadow-sm border border-slate-200">
+              <div className=" p-6 rounded-2xl flex items-center gap-6 shadow-sm border border-slate-200">
                 <div 
                   className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-24 shrink-0" 
                   style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCDvWPt7JrEkh0jPnYSj1eI910Xs-vJW8MxFTl-O7eiIOaEWTbrNcvu5hU7idcGClgCissYwn4-agUrArlYzYk4__dke6lCFjX0BMcz7MSpITyWtuL8WK0QpTjgw0NpT1d1Ji1Fewl0lu0CWWQNXqBqJdpgk5HbSThRrpHjjZxp8RkGo3EuY_IRNoaDsL85GDzMsUWSk_m9OPa_HzCPiag3npEaZcyIu2X5cWvu8WuLwAKbYRkjckB2BapMrXKo_xBoi3MLfy2gpU8')" }}
@@ -110,7 +117,7 @@ export default function Dashboard() {
               </div>
               
               {/* Learning Progress */}
-              <div className="bg-slate-50 p-6 rounded-2xl shadow-sm border border-slate-200">
+              <div className="p-6 rounded-2xl shadow-sm border border-slate-200">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Learning Progress</h3>
                 <div className="flex items-end gap-2">
                   <p className="text-4xl font-bold text-gray-900">75%</p>
@@ -169,7 +176,7 @@ export default function Dashboard() {
             {/* Right Column (1/3 width on large screens) */}
             <div className="lg:col-span-1 space-y-8">
               {/* Recent Activity */}
-              <div className="bg-slate-50 p-6 rounded-2xl shadow-sm border border-slate-200">
+              <div className="p-6 rounded-2xl shadow-sm border border-slate-200">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">Recent Activity</h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
@@ -211,7 +218,7 @@ export default function Dashboard() {
               </div>  
               
               {/* Inspiration Card */}
-              <div 
+              {/* <div 
                 className="p-6 rounded-2xl bg-cover bg-center min-h-[200px] flex items-end" 
                 style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC5YI0mhD56v3Z3wiGtEM0OompiTY4tBKrZg0GzMQsR9BA09H_s3UPAZxjQS8ZcY7L19KwtiQFGWus_0wdgHYUS2HXb5xE-p9mWh_SL54M4AtmHAg6e00efaWoIYso4a0g8nQWtr_7RL4F1Tk46squZCdIiPNhq5u61eRJZB-WVjKY2xQb7T7Fbf2ZVvtPqbhbH3-BZeX3ozslXzhQ2HqQaUwDxEXQSQ8zjbu_Bwqkg6Ne_BhzVK742Qzt7Aqg8dhrdMcj5xhztEC4')" }}
               >
@@ -219,11 +226,12 @@ export default function Dashboard() {
                   <h3 className="font-bold text-lg">Nigerian Design Inspiration</h3>
                   <p className="text-sm mt-1">This design subtly incorporates patterns and textures inspired by Nigerian art and textiles, creating a unique and culturally rich user experience.</p>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
       </div>
+ 
     </Sidebar>
   );
 }

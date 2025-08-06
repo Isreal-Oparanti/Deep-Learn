@@ -71,7 +71,7 @@ export default function Sidebar({ children }) {
         icon: Target,
         label: 'Challenges',
         href: '/tasks',
-        badge: 'New'
+        // badge: 'New'
       },
       {
         icon: Gift,
@@ -106,13 +106,11 @@ export default function Sidebar({ children }) {
           </button>
           
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 bg-blue-100 px-3 py-1 rounded-full">
-              <div className="size-5 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
+            <div className="flex items-center gap-2 bg-blue-100 px-3 py-3 rounded-full">
+              <div className="size-5 rounded-full flex items-center justify-center">
                 <div className="text-white text-xs font-bold">P</div>
               </div>
-              <span className="text-sm font-semibold text-blue-800">
-                {points.toLocaleString()}
-              </span>
+              
             </div>
             
             <div className="size-10 rounded-full bg-cover bg-center" 
@@ -248,13 +246,17 @@ export default function Sidebar({ children }) {
           <div className="flex flex-col flex-grow pt-5 bg-white border-r border-gray-200 overflow-y-auto">
             <div className="flex items-center justify-between px-6">
               <div className="flex items-center gap-3">
-                <div className="size-10 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
-                  <div className="text-white font-bold text-lg">DL</div>
-                </div>
-                <div className="flex flex-col">
-                  <h1 className="text-lg font-bold text-gray-900">DeepLearn Points</h1>
-                  <p className="text-xs text-gray-500 -mt-1">Knowledge is Currency</p>
-                </div>
+              <div className="flex items-center gap-3 text-gray-900">
+              <svg className="text-blue-600" fill="none" height="32" viewBox="0 0 24 24" width="32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+              </svg>
+              <div>
+                <h1 className="text-blue-600 text-xl font-bold">DeepLearn</h1>
+                <p className="text-xs text-gray-500 font-medium">Where Knowledge Becomes Currency</p>
+              </div>
+            </div>
               </div>
             </div>
             
@@ -321,18 +323,18 @@ export default function Sidebar({ children }) {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Points Earned</span>
                     <span className="text-sm font-semibold text-blue-600">
-                      {Math.min(2000, points).toLocaleString()}/2,000
+                      {Math.min(1000, user?.points).toLocaleString()}/1,000
                     </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-gradient-to-r from-blue-600 to-indigo-700 h-2 rounded-full"
-                      style={{ width: `${Math.min(100, points / 2000 * 100)}%` }}
+                      style={{ width: `${Math.min(100, user?.points / 1000 * 100)}%` }}
                     ></div>
                   </div>
                   <p className="text-xs text-gray-600">
-                    {points < 2000 
-                      ? `${(2000 - points).toLocaleString()} points to go!` 
+                    {user?.points < 1000 
+                      ? `${(1000 - user?.points).toLocaleString()} points to go!` 
                       : 'Goal achieved! 🎉'}
                   </p>
                 </div>
@@ -356,7 +358,7 @@ export default function Sidebar({ children }) {
         {/* Main Content - Updated margin to match new sidebar width */}
         <div className="flex-1 md:ml-80">
           {/* Desktop Header */}
-          <header className="sticky top-0 z-40 hidden md:flex w-full bg-white border-b border-gray-200">
+          <header className="sticky p-3 top-0 z-40 hidden md:flex w-full bg-white border-b border-gray-200">
             <div className="flex-1 px-6">
               <div className="flex items-center justify-between h-16">
                 <div className="flex-1 max-w-lg">
@@ -379,12 +381,12 @@ export default function Sidebar({ children }) {
                     <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
                   </button>
                   
-                  <div className="flex items-center gap-2 bg-blue-100 px-4 py-1 rounded-full">
+                  <div className="flex items-center gap-2 bg-blue-100 px-4 py-3 rounded-full">
                     <div className="size-6 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center">
                       <div className="text-white text-xs font-bold">P</div>
                     </div>
                     <span className="text-sm font-semibold text-blue-800">
-                      {points.toLocaleString()}
+                      {user.points +" pts"}
                     </span>
                   </div>
                   

@@ -21,7 +21,7 @@ export default function AITutorPage() {
       const greeting = {
         id: Date.now(),
         sender: 'ai',
-        text: `Welcome ${user.name.split(' ')[1]}! I'm your AI Tutor at DeepLearn Points. 🎓\n\nWhat would you like to explore today? I can help with:\n- Understanding complex concepts\n- Solving practice problems\n- Preparing for exams\n- Creating study plans\n\nAsk me anything!`,
+        text: `Welcome ${user.name.split(' ')[0]}! I'm your AI Tutor at DeepLearn Points. 🎓\n\nWhat would you like to explore today? I can help with:\n- Understanding complex concepts\n- Solving practice problems\n- Preparing for exams\n- Creating study plans\n\nAsk me anything!`,
         resources: []
       };
       setMessages([greeting]);
