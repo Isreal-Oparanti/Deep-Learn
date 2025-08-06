@@ -1,233 +1,69 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Sidebar from '@/components/Sidebar';
+import Link from 'next/link';
 
-export default function TaskVerification() {
-  const [isRecording, setIsRecording] = useState(false);
-  const [showWarning, setShowWarning] = useState(false);
-  const [anomalyCount, setAnomalyCount] = useState(0);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const screenVideoRef = useRef(null);
-  const faceVideoRef = useRef(null);
-  const timerRef = useRef(null);
-  const anomalyTimerRef = useRef(null);
-  const pasteCountRef = useRef(0);
-  const lastPasteTimeRef = useRef(0);
-
-  // Simulate recording and anomaly detection
-  useEffect(() => {
-    if (isRecording) {
-      // Start recording timer
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-
-      // Simulate periodic anomaly checks
-      anomalyTimerRef.current = setInterval(() => {
-        // Random anomalies (30% chance)
-        if (Math.random() < 0.3) {
-          setShowWarning(true);
-          setAnomalyCount(prev => prev + 1);
-          setTimeout(() => setShowWarning(false), 5000);
-        }
-      }, 10000);
-
-      // Set up paste detection
-      document.addEventListener('paste', handlePaste);
-      
-      // Set up visibility change detection
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-    } else {
-      clearInterval(timerRef.current);
-      clearInterval(anomalyTimerRef.current);
-      document.removeEventListener('paste', handlePaste);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }
-
-    return () => {
-      clearInterval(timerRef.current);
-      clearInterval(anomalyTimerRef.current);
-      document.removeEventListener('paste', handlePaste);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isRecording]);
-
-  const handlePaste = (e) => {
-    const now = Date.now();
-    // Detect rapid paste events (more than 2 in 5 seconds)
-    if (now - lastPasteTimeRef.current < 5000) {
-      pasteCountRef.current++;
-      if (pasteCountRef.current > 2) {
-        triggerAnomaly("Copy-paste burst detected!");
-      }
-    } else {
-      pasteCountRef.current = 1;
-    }
-    lastPasteTimeRef.current = now;
-  };
-
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'hidden') {
-      triggerAnomaly("Browser tab switched during recording!");
-    }
-  };
-
-  const triggerAnomaly = (message) => {
-    setShowWarning(true);
-    setAnomalyCount(prev => prev + 1);
-    console.warn("ANOMALY:", message);
-    setTimeout(() => setShowWarning(false), 5000);
-  };
-
-  const toggleRecording = () => {
-    if (!isRecording) {
-      setRecordingTime(0);
-      setAnomalyCount(0);
-      pasteCountRef.current = 0;
-      lastPasteTimeRef.current = 0;
-    }
-    setIsRecording(!isRecording);
-  };
-
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+export default function TasksPage() {
+  // Sample tasks - in real app these would come from your database
+  const tasks = [
+    { id: 1, title: "Linear Regression", difficulty: "Medium", points: 100 },
+    { id: 2, title: "Neural Networks", difficulty: "Hard", points: 200 },
+    { id: 3, title: "Data Preprocessing", difficulty: "Easy", points: 50 },
+  ];
 
   return (
     <Sidebar>
-      <div className="p-2">
-        <div className="min-h-screen bg-slate-50 text-slate-900">
-          <main className="container mx-auto px-2 py-4 flex flex-col items-center">
-            <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-lg relative overflow-hidden">
-              <div
-                className="absolute inset-0 opacity-5 pointer-events-none"
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563EB' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                }}
-              ></div>
+      <div className="p-4">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">Available Tasks</h1>
+          <p className="text-gray-600 mb-8">
+            Select a task to demonstrate your understanding and earn points. 
+            Each task requires verification through dual camera recording and oral defense.
+          </p>
 
-              <div className="relative p-6 md:p-8">
-                <div className="mb-6 text-center">
-                  <p className="mb-2 text-sm font-semibold uppercase tracking-wider text-blue-600">
-                    Step 1 of 3
-                  </p>
-                  <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
-                    Dual Camera Recording
-                  </h2>
-                  <p className="mt-3 text-base text-slate-600 max-w-md mx-auto">
-                    Record your face and screen simultaneously to verify your task
-                    completion.
-                  </p>
-                  <p className="mt-2 text-sm font-semibold italic text-emerald-500">
-                    'Where Knowledge Becomes Currency'
-                  </p>
-                </div>
-
-                <div className="mb-6">
-                  <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl bg-slate-900 shadow-inner">
-                    {/* Screen feed */}
-                    <div
-                      className="h-full w-full bg-cover bg-center"
-                      style={{
-                        backgroundImage:
-                          "url('https://lh3.googleusercontent.com/aida-public/AB6AXuC0_4bELXQqudtrJm3GlRE5FPkqd_yaTUxM89iyJHMrYSSLj6fNJ8QW4dkwVg1hcFIn7cp4Y0gXM8pr56E9xLhREkUcBYOtT1uw1clUSWEIQD28TBwFK3g1Ogiw3zM0vkQTDM0643DI-Z8KNbTtNS7As7RmAkRmBdMfhnPRe5JR8IVheGUraSLncY1kgqWrXEsT-9LUvaIoPzc3j0FoiUmMkaqwuJOtTNxbN3WGEsV4YNUrtPy66zguNc7-75s1PoX2ZiKZBEEzKjg')",
-                      }}
-                    ></div>
-
-                    {/* Face feed */}
-                    <div className="absolute bottom-4 right-4 w-1/4 aspect-square overflow-hidden rounded-lg border-2 border-white/50 shadow-lg">
-                      <div
-                        className="h-full w-full bg-cover bg-center"
-                        style={{
-                          backgroundImage:
-                            "url('https://lh3.googleusercontent.com/aida-public/AB6AXuAMlgQIM3hkEG5myEFNrj7H_2kyqTEeW4f8u-svqEP1KriRebGxE0TTv_r3IGyZAqT-Tu6SKAPwsLaDUvsbonZhJh8XqAXlmP73Cuvv8iCRpWY14GWKrwn-GYGB6K1zy0-mWIE6ek2nIbVns4J05HQwsUANZmLO8P-D7ixqSIhCFsnsBE7NghxShqmWZpbrASERRmDJtrQdlYF_paZD7qKexhDFNGpGLW8NcCOKjKHosNS-0cNrc3Hr1kea_zPWsoB_SQW3fhn8MPk')",
-                        }}
-                      ></div>
-                    </div>
-
-                    {/* Recording indicator and timer */}
-                    {isRecording && (
-                      <div className="absolute top-4 left-4 flex items-center gap-2">
-                        <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                        <span className="text-white font-medium text-sm">
-                          {formatTime(recordingTime)}
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Record button */}
-                    <button
-                      onClick={toggleRecording}
-                      className={`group absolute flex size-16 md:size-20 items-center justify-center rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
-                        isRecording
-                          ? "bg-red-500/80 hover:bg-red-600/80"
-                          : "bg-white/20 hover:bg-white/30"
-                      }`}
-                    >
-                      <span
-                        className={`material-icons text-4xl md:text-5xl text-white drop-shadow-lg ${
-                          isRecording ? "" : "ml-1"
-                        }`}
-                      >
-                        {isRecording ? "stop" : "play_arrow"}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Anomaly warning */}
-                {showWarning && (
-                  <div className="mb-6 h-10">
-                    <div className="flex items-center justify-center gap-2 rounded-lg bg-amber-100 p-2 text-center text-sm font-medium text-amber-700">
-                      <span className="material-icons animate-pulse text-xl">
-                        warning_amber
-                      </span>
-                      <p>Keystroke rhythm anomaly detected!</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex flex-col items-center gap-4">
-                  <button
-                    onClick={toggleRecording}
-                    className={`flex w-full max-w-xs items-center justify-center gap-2 overflow-hidden rounded-xl px-6 py-3 text-base font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl ${
-                      isRecording
-                        ? "bg-red-500 shadow-red-500/30 hover:bg-red-600"
-                        : "bg-blue-600 shadow-blue-600/30 hover:bg-blue-700"
-                    }`}
-                  >
-                    <span className="material-icons">
-                      {isRecording ? "stop" : "videocam"}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {tasks.map((task) => (
+              <div 
+                key={task.id} 
+                className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200"
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <h2 className="text-xl font-bold text-gray-800">{task.title}</h2>
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      task.difficulty === 'Easy' 
+                        ? 'bg-green-100 text-green-800' 
+                        : task.difficulty === 'Medium' 
+                          ? 'bg-yellow-100 text-yellow-800' 
+                          : 'bg-red-100 text-red-800'
+                    }`}>
+                      {task.difficulty}
                     </span>
-                    <span className="truncate">
-                      {isRecording ? "Stop Recording" : "Start Recording"}
-                    </span>
-                  </button>
+                  </div>
                   
-                  <div className="flex justify-between w-full max-w-xs text-sm">
-                    <div className="text-slate-500">
-                      Anomalies: <span className="font-semibold">{anomalyCount}</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-500" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                      <span className="ml-2 font-bold">{task.points} pts</span>
                     </div>
-                    <button className="text-sm font-medium text-blue-600 transition-colors hover:text-blue-800">
-                      Proceed to Next Step
-                    </button>
                   </div>
+                  
+                  <p className="text-gray-600 text-sm mb-6">
+                    Demonstrate your understanding of {task.title} through a recorded explanation and oral defense.
+                  </p>
+                  
+                  <Link 
+                    href={`/tasks/verification?taskId=${task.id}`}
+                    className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-center transition-colors"
+                  >
+                    Start Task
+                  </Link>
                 </div>
               </div>
-
-              {/* Progress bar */}
-              <div className="w-full bg-slate-100 p-2">
-                <div className="h-2 w-full rounded-full bg-slate-200">
-                  <div
-                    className="h-2 rounded-full bg-emerald-500 transition-all duration-500"
-                    style={{ width: "33%" }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          </main>
+            ))}
+          </div>
         </div>
       </div>
     </Sidebar>

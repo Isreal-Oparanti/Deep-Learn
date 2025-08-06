@@ -1,12 +1,13 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { useUser } from '@/context/UserContext';
+import { useUser } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { FiHome, FiMessageSquare, FiList, FiAward, FiShoppingBag, FiLogOut } from 'react-icons/fi';
 
 const Sidebar = ({ children }) => {
   const { user, loading, logout } = useUser();
+  console.log(user)
   const pathname = usePathname();
   const [points, setPoints] = useState(0);
 
@@ -43,7 +44,7 @@ const Sidebar = ({ children }) => {
     { href: '/ai', label: 'AI Tutor', icon: <FiMessageSquare size={20} /> },
     { href: '/tasks', label: 'Tasks', icon: <FiList size={20} /> },
     { href: '/rewards', label: 'Points', icon: <FiAward size={20} /> },
-    { href: '/marketplace', label: 'Marketplace', icon: <FiShoppingBag size={20} /> },
+    { href: '/community', label: 'Community', icon: <FiShoppingBag size={20} /> },
   ];
 
   return (
@@ -87,7 +88,8 @@ const Sidebar = ({ children }) => {
           </div>
           
           {/* Profile Section */}
-          <div className="flex items-center gap-3">
+           {/* Profile Section */}
+           <div className="flex items-center gap-3">
             <div 
               className="w-10 h-10 rounded-full bg-cover border-2 border-amber-500"
               style={{ 

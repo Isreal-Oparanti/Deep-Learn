@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { Geist } from "next/font/google";
-
+import Sidebar from '@/components/Sidebar';
 const geist = Geist({ subsets: ["latin"] });
 
 export default function PointsPage() {
   const [activeTab, setActiveTab] = useState("OAU");
 
   return (
+    <Sidebar>
     <div 
       className={`w-full min-h-screen p-8 bg-white/80 backdrop-blur-sm ${geist.className}`}
       style={{ 
@@ -128,6 +129,7 @@ export default function PointsPage() {
         </div>
       </div>
     </div>
+    </Sidebar>
   );
 }
 

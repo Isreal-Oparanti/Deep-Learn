@@ -1,49 +1,67 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSpeechSynthesis } from 'react-speech-kit';
 
 export default function OralDefense({ questions, onSubmit }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState([]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [score, setScore] = useState(null);
-  const { speak, cancel } = useSpeechSynthesis();
+  const { speak, cancel, speaking } = useSpeechSynthesis();
 
-  const speakQuestion = () => {
-    if (questions[currentQuestionIndex]) {
+  // Initialize answers when questions change
+  useEffect(() => {
+    setAnswers(Array(questions.length).fill(''));
+    setCurrentQuestionIndex(0);
+    setScore(null);
+  }, [questions]);
+
+  // Automatically speak questions when they load or change
+  useEffect(() => {
+    if (questions.length > 0 && !speaking) {
+      speakCurrentQuestion();
+    }
+  }, [currentQuestionIndex, questions]);
+
+  const speakCurrentQuestion = useCallback(() => {
+    if (questions[currentQuestionIndex] && !speaking) {
       setIsSpeaking(true);
       speak({
         text: questions[currentQuestionIndex],
         onEnd: () => setIsSpeaking(false)
       });
     }
-  };
+  }, [currentQuestionIndex, questions, speak, speaking]);
 
   const handleAnswerChange = (e) => {
-    setAnswers({
-      ...answers,
-      [currentQuestionIndex]: e.target.value
-    });
+    const newAnswers = [...answers];
+    newAnswers[currentQuestionIndex] = e.target.value;
+    setAnswers(newAnswers);
   };
 
   const nextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setCurrentQuestionIndex(prev => prev + 1);
     } else {
-      submitAnswers();
+      handleSubmit();
     }
   };
 
-  const submitAnswers = async () => {
+  const handleSubmit = async () => {
     setIsEvaluating(true);
     try {
-      const response = await onSubmit(
-        Object.values(answers).filter(a => a !== undefined)
-      );
-      setScore(response.score);
+      // Filter out empty answers
+      const filteredAnswers = answers.filter(a => a?.trim() !== '');
+      
+      // Call the onSubmit prop from DefensePage
+      const result = await onSubmit(filteredAnswers);
+      
+      // Set the score from the API response
+      setScore(result.score);
     } catch (error) {
       console.error('Evaluation failed:', error);
+      alert(error.message || 'Failed to submit answers. Please try again.');
     } finally {
       setIsEvaluating(false);
     }
@@ -70,7 +88,7 @@ export default function OralDefense({ questions, onSubmit }) {
           </p>
           <button
             onClick={() => window.location.href = '/rewards'}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             View Rewards
           </button>
@@ -91,12 +109,14 @@ export default function OralDefense({ questions, onSubmit }) {
                 <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
               )}
               <p className="ml-2 font-medium text-blue-700">
-                {isSpeaking ? "AI is asking a question..." : "Question ready"}
+                {isSpeaking 
+                  ? "AI is asking a question..." 
+                  : "Question ready"}
               </p>
             </div>
             
-            <div className="bg-white p-4 rounded border border-blue-200">
-              {questions[currentQuestionIndex] || "Loading question..."}
+            <div className="bg-white p-4 rounded border border-blue-200 min-h-[60px] flex items-center">
+              {questions[currentQuestionIndex]}
             </div>
           </div>
 
@@ -115,22 +135,22 @@ export default function OralDefense({ questions, onSubmit }) {
 
           <div className="flex justify-between">
             <button
-              onClick={speakQuestion}
-              disabled={isSpeaking || !questions[currentQuestionIndex]}
-              className={`px-4 py-2 rounded-md ${
-                isSpeaking || !questions[currentQuestionIndex]
+              onClick={speakCurrentQuestion}
+              disabled={isSpeaking}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                isSpeaking
                   ? "bg-gray-300 cursor-not-allowed" 
                   : "bg-blue-600 hover:bg-blue-700 text-white"
               }`}
             >
-              {isSpeaking ? "Asking..." : "Ask Question"}
+              {isSpeaking ? "Asking..." : "Re-ask Question"}
             </button>
             
             <button
               onClick={nextQuestion}
-              disabled={isEvaluating}
-              className={`px-4 py-2 rounded-md ${
-                isEvaluating
+              disabled={isEvaluating || !answers[currentQuestionIndex]?.trim()}
+              className={`px-4 py-2 rounded-md transition-colors ${
+                isEvaluating || !answers[currentQuestionIndex]?.trim()
                   ? "bg-gray-300 cursor-not-allowed"
                   : "bg-emerald-600 hover:bg-emerald-700 text-white"
               }`}

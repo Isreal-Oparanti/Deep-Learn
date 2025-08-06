@@ -1,7 +1,7 @@
 import { connectDB } from '@/lib/db';
 import TaskAttempt from '@/models/TaskAttempt';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import fs from 'fs';
+import path from 'path';
 
 export const config = {
   api: {
@@ -9,48 +9,47 @@ export const config = {
   },
 };
 
-export async function POST(req) {
-  // Get user session
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  await connectDB();
-
-  // Parse form data
-  const Formidable = require('formidable');
-  const form = new Formidable.IncomingForm();
-  
+export async function POST(request) {
   try {
-    const { fields, files } = await new Promise((resolve, reject) => {
-      form.parse(req, (err, fields, files) => {
-        if (err) reject(err);
-        resolve({ fields, files });
+    await connectDB();
+
+    // Create uploads directory
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // Get form data using manual parsing
+    const formData = await request.formData();
+    const recordingFile = formData.get('recording');
+    const duration = formData.get('duration');
+    const anomalies = formData.get('anomalies');
+    const userId = formData.get('userId');
+
+    // Validate required fields
+    if (!userId || !duration || !recordingFile) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
       });
-    });
+    }
 
-    // Extract data
-    const duration = fields.duration[0];
-    const anomalies = JSON.parse(fields.anomalies[0]);
-    const userId = session.user.id;
-    const recordingFile = files.recording[0];
+    // Convert to buffer
+    const buffer = await recordingFile.arrayBuffer();
+    const fileName = `recording-${Date.now()}.webm`;
+    const filePath = path.join(uploadDir, fileName);
 
-    // In production: Save file to cloud storage and get URL
-    // For demo, just save metadata
-    const recordingUrl = `/recordings/${recordingFile.newFilename}`;
+    // Save file
+    fs.writeFileSync(filePath, Buffer.from(buffer));
 
     // Create task attempt
     const taskAttempt = new TaskAttempt({
       userId,
       recording: {
-        duration,
-        anomalies,
-        url: recordingUrl,
-        faceVisiblePercentage: 85 // Simulated value
+        duration: parseInt(duration),
+        anomalies: anomalies ? JSON.parse(anomalies) : [],
+        url: `/uploads/${fileName}`,
+        faceVisiblePercentage: 85
       },
       status: 'defense'
     });
@@ -73,37 +72,3 @@ export async function POST(req) {
     });
   }
 }
-// import { connectDB } from '@/lib/db';
-// import TaskAttempt from '@/models/TaskAttempt';
-
-// export async function POST(req) {
-//   await connectDB();
-  
-//   try {
-//     const { userId, taskId, duration, anomalies, faceVisiblePercentage } = await req.json();
-    
-//     const attempt = new TaskAttempt({
-//       userId,
-//       taskId,
-//       recording: {
-//         duration,
-//         anomalies,
-//         faceVisiblePercentage
-//       },
-//       status: 'defense' // Move to next stage
-//     });
-    
-//     await attempt.save();
-    
-//     return new Response(JSON.stringify({
-//       success: true,
-//       attemptId: attempt._id
-//     }), { status: 200 });
-    
-//   } catch (error) {
-//     return new Response(JSON.stringify({
-//       success: false,
-//       error: "Failed to save recording data"
-//     }), { status: 500 });
-//   }
-// }

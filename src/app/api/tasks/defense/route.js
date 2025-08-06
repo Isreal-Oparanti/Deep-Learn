@@ -9,50 +9,81 @@ export async function GET(req) {
   await connectDB();
   
   try {
-    // In production: Generate AI questions based on task content
-    const questions = [
-      "Explain your approach to solving this problem?",
-      "What alternative methods did you consider?",
-      "How would you extend this solution?"
-    ];
-    
-    return new Response(JSON.stringify({ questions }), {
+    return new Response(JSON.stringify({ 
+      questions: [
+        "Explain your approach to solving this problem?",
+        "What alternative methods did you consider?",
+        "How would you extend this solution?"
+      ]
+    }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
     
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Failed to get questions' }), {
-      status: 500,
+    return new Response(JSON.stringify({ 
+      questions: [
+        "Explain your approach to solving this problem?",
+        "What alternative methods did you consider?",
+        "How would you extend this solution?"
+      ]
+    }), {
+      status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 }
 
 export async function POST(req) {
-  const { attemptId, answers, userId } = await req.json();
-  
   await connectDB();
   
   try {
-    // Calculate score (simple version)
+    const { attemptId, answers, userId } = await req.json();
+    
+    // Validate required fields
+    if (!attemptId || !answers || !Array.isArray(answers) || !userId) {
+      return new Response(JSON.stringify({ 
+        success: false,
+        error: 'Missing required fields: ' + 
+          (!attemptId ? 'attemptId ' : '') +
+          (!answers ? 'answers ' : '') +
+          (!userId ? 'userId' : '')
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    
+    // Calculate score based on answer quality
     const score = calculateScore(answers);
+    const pointsAwarded = calculatePoints(score);
     
     // Update task attempt
-    const attempt = await TaskAttempt.findByIdAndUpdate(attemptId, {
-      defense: {
-        questions: [], // Should come from GET request
-        answers,
-        score
+    const updatedAttempt = await TaskAttempt.findByIdAndUpdate(
+      attemptId,
+      {
+        defense: { answers, score },
+        pointsAwarded,
+        status: 'completed',
+        completedAt: new Date()
       },
-      pointsAwarded: score > 70 ? 100 : score > 40 ? 50 : 0,
-      status: 'completed'
-    }, { new: true });
+      { new: true }
+    );
+    
+    if (!updatedAttempt) {
+      return new Response(JSON.stringify({ 
+        success: false,
+        error: 'Task attempt not found'
+      }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
     
     // Update user points
-    if (attempt.pointsAwarded > 0) {
+    if (pointsAwarded > 0) {
       await User.findByIdAndUpdate(userId, {
-        $inc: { points: attempt.pointsAwarded }
+        $inc: { points: pointsAwarded }
       });
     }
     
@@ -65,21 +96,39 @@ export async function POST(req) {
     });
     
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Evaluation failed' }), {
+    console.error('Defense submission error:', error.message);
+    return new Response(JSON.stringify({ 
+      success: false,
+      error: error.message || 'Evaluation failed'
+    }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
   }
 }
 
-// Simple scoring logic
 function calculateScore(answers) {
-  let score = 80; // Base score
+  let score = 0;
+  const pointsPerQuestion = 100 / answers.length;
   
   answers.forEach(answer => {
-    if (!answer || answer.length < 20) score -= 15;
-    if (answer.length > 100) score += 5;
+    if (!answer || answer.trim().length < 10) return;
+    
+    let questionScore = pointsPerQuestion * 0.5;
+    const length = answer.trim().length;
+    
+    if (length > 30) questionScore += pointsPerQuestion * 0.3;
+    if (length > 100) questionScore += pointsPerQuestion * 0.2;
+    
+    score += questionScore;
   });
   
-  return Math.min(100, Math.max(0, score));
+  return Math.min(100, Math.max(0, Math.round(score)));
+}
+
+function calculatePoints(score) {
+  if (score >= 80) return 100;
+  if (score >= 60) return 75;
+  if (score >= 40) return 50;
+  return 25;
 }

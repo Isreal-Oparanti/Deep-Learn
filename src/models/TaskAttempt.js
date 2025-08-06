@@ -8,12 +8,12 @@ const TaskAttemptSchema = new mongoose.Schema({
   },
   taskId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Task',
-    required: true
+    ref: 'Task'
   },
   recording: {
     duration: Number, // in seconds
     anomalies: [String], // list of detected anomalies
+    url: String, // URL to recording file
     faceVisiblePercentage: Number, // 0-100%
     startedAt: Date,
     endedAt: Date

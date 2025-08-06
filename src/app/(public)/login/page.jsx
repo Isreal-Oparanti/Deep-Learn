@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from '@/context/AuthContext';
 
 export default function LoginPage() {
+  const { login } = useUser();
   const [form, setForm] = useState({
     identifier: "",
     password: "",
@@ -20,9 +22,7 @@ export default function LoginPage() {
     try {
       const res = await fetch("/api/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           ...form, 
           rememberMe 
@@ -31,6 +31,7 @@ export default function LoginPage() {
 
       const data = await res.json();
       if (data.success) {
+        login(data.user); // Store user in context
         router.push("/dashboard");
       } else {
         setError(data.message || "Login failed. Please check your credentials.");
@@ -41,7 +42,6 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 p-4">
       <div className="relative z-10 w-full max-w-md">

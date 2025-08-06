@@ -3,8 +3,6 @@ import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { NextResponse } from "next/server";
-import { serialize } from "cookie";
-import { cookies } from "next/headers";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -27,7 +25,7 @@ export async function POST(req) {
 
     const user = await User.findOne({
       $or: [{ email: identifier }, { matricNumber: identifier }],
-    });
+    }).select('+password'); // Important: include password field
 
     if (!user) {
       return NextResponse.json(
@@ -56,90 +54,26 @@ export async function POST(req) {
       );
     }
 
-    const token = jwt.sign(
-      {
-        userId: user._id,
-        role: user.role,
-        name: user.name,
-        email: user.email,
-        profileImage: user.profileImage || null,
-      },
-      JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    // Create response without password
+    const userResponse = {
+      _id: user._id,
+      name: user.name,
+      role: user.role,
+      email: user.email,
+      matricNumber: user.matricNumber,
+      session: user.session,
+      points: user.points
+    };
 
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: true,
       message: "Login successful",
-      user: {
-        name: user.name,
-        role: user.role,
-        email: user.email,
-        matricNumber: user.matricNumber,
-        session: user.session,
-      },
+      user: userResponse
     });
-
-    response.headers.set(
-      "Set-Cookie",
-      serialize("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        path: "/",
-        maxAge: 60 * 60 * 24 * 7,
-      })
-    );
-
-    return response;
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json(
       { success: false, message: "Login failed" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(req) {
-  await connectDB();
-
-  try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
-
-    if (!token) {
-      return NextResponse.json(
-        { success: false, message: "Not authenticated" },
-        { status: 401 }
-      );
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);
-    const user = await User.findById(decoded.userId, "-password");
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, message: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        matricNumber: user.matricNumber,
-        session: user.session,
-        course: user.course,
-      },
-    });
-  } catch (error) {
-    console.error("Error in user authentication:", error);
-    return NextResponse.json(
-      { success: false, message: "Authentication failed" },
       { status: 500 }
     );
   }

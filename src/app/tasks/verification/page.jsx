@@ -2,16 +2,16 @@
 import { useState, useEffect, useRef } from "react";
 import Sidebar from '@/components/Sidebar';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { useUser } from '@/context/AuthContext'; // Replaced useSession with useUser
 
 export default function TaskVerification() {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { user } = useUser(); // Get user from context
   const [isRecording, setIsRecording] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
   const [anomalyCount, setAnomalyCount] = useState(0);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [anomalyMessages, setAnomalyMessages] = useState([]);
+  const [anomalyMessage, setAnomalyMessage] = useState("");
   const screenVideoRef = useRef(null);
   const faceVideoRef = useRef(null);
   const timerRef = useRef(null);
@@ -23,45 +23,15 @@ export default function TaskVerification() {
   const screenStreamRef = useRef(null);
   const faceStreamRef = useRef(null);
 
-  // Initialize media streams and recording
-  useEffect(() => {
-    return () => {
-      // Cleanup when component unmounts
-      if (screenStreamRef.current) {
-        screenStreamRef.current.getTracks().forEach(track => track.stop());
-      }
-      if (faceStreamRef.current) {
-        faceStreamRef.current.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
 
-  const handlePaste = (e) => {
-    const now = Date.now();
-    if (now - lastPasteTimeRef.current < 5000) {
-      pasteCountRef.current++;
-      if (pasteCountRef.current > 2) {
-        triggerAnomaly("Copy-paste burst detected!");
-      }
-    } else {
-      pasteCountRef.current = 1;
-    }
-    lastPasteTimeRef.current = now;
-  };
 
-  const handleVisibilityChange = () => {
-    if (document.visibilityState === 'hidden') {
-      triggerAnomaly("Browser tab switched during recording!");
-    }
-  };
-
-  const triggerAnomaly = (message) => {
-    setShowWarning(true);
-    setAnomalyCount(prev => prev + 1);
-    setAnomalyMessages(prev => [...prev, message]);
-    setTimeout(() => setShowWarning(false), 5000);
-  };
-
+  function formatTime(seconds) {
+    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+  }
+  
+  // Initialize recording
   const startRecording = async () => {
     try {
       // Get screen stream
@@ -79,6 +49,10 @@ export default function TaskVerification() {
       // Set video elements
       screenVideoRef.current.srcObject = screenStream;
       faceVideoRef.current.srcObject = faceStream;
+
+      // Store streams for cleanup
+      screenStreamRef.current = screenStream;
+      faceStreamRef.current = faceStream;
 
       // Combine streams
       const combinedStream = new MediaStream([
@@ -104,10 +78,6 @@ export default function TaskVerification() {
 
       mediaRecorderRef.current.start(1000); // Capture 1s chunks
 
-      // Store references for cleanup
-      screenStreamRef.current = screenStream;
-      faceStreamRef.current = faceStream;
-
       // Handle screen sharing stop
       screenStream.getVideoTracks()[0].onended = () => {
         stopRecording();
@@ -116,13 +86,14 @@ export default function TaskVerification() {
       setIsRecording(true);
       setRecordingTime(0);
       setAnomalyCount(0);
-      setAnomalyMessages([]);
+      setAnomalyMessage("");
       pasteCountRef.current = 0;
       lastPasteTimeRef.current = 0;
       
     } catch (error) {
       console.error("Recording failed to start:", error);
-      triggerAnomaly("Could not start recording. Please allow permissions.");
+      setAnomalyMessage("Could not start recording. Please allow permissions.");
+      setShowWarning(true);
     }
   };
 
@@ -142,65 +113,38 @@ export default function TaskVerification() {
   };
 
   const saveRecordingMetadata = async (blob) => {
+    if (!user || !user._id) {
+      setAnomalyMessage("User information not available. Please log in again.");
+      setShowWarning(true);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('recording', blob, 'recording.webm');
-    formData.append('duration', recordingTime);
-    formData.append('anomalies', JSON.stringify(anomalyMessages));
-    formData.append('userId', session.user.id);
+    formData.append('duration', recordingTime.toString());
+    formData.append('anomalies', JSON.stringify(anomalyMessage ? [anomalyMessage] : []));
+    formData.append('userId', user._id); // Use user._id from context
 
     try {
-      const response = await fetch('/api/tasks/recording', {
+      const response = await fetch('/api/tasks/recordings', {
         method: 'POST',
         body: formData
       });
 
       const data = await response.json();
+      console.log(data)
       if (data.success) {
+        // Store attemptId in localStorage for defense page
+        localStorage.setItem('currentAttemptId', data.attemptId);
         router.push(`/tasks/defense?attemptId=${data.attemptId}`);
       }
     } catch (error) {
       console.error('Failed to save recording metadata:', error);
+      setAnomalyMessage("Failed to save recording. Please try again.");
+      setShowWarning(true);
     }
   };
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Anomaly detection
-  useEffect(() => {
-    if (isRecording) {
-      // Start recording timer
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
-
-      // Simulate periodic anomaly checks
-      anomalyTimerRef.current = setInterval(() => {
-        if (Math.random() < 0.3) {
-          triggerAnomaly("Behavioral anomaly detected!");
-        }
-      }, 10000);
-
-      // Set up event listeners
-      document.addEventListener('paste', handlePaste);
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-    } else {
-      clearInterval(timerRef.current);
-      clearInterval(anomalyTimerRef.current);
-      document.removeEventListener('paste', handlePaste);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    }
-
-    return () => {
-      clearInterval(timerRef.current);
-      clearInterval(anomalyTimerRef.current);
-      document.removeEventListener('paste', handlePaste);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [isRecording]);
 
   return (
     <Sidebar>
@@ -284,12 +228,12 @@ export default function TaskVerification() {
 
                 {/* Anomaly warning */}
                 {showWarning && (
-                  <div className="mb-6 h-10">
+                  <div className="mb-6">
                     <div className="flex items-center justify-center gap-2 rounded-lg bg-amber-100 p-2 text-center text-sm font-medium text-amber-700">
                       <span className="material-icons animate-pulse text-xl">
                         warning_amber
                       </span>
-                      <p>Anomaly detected!</p>
+                      <p>{anomalyMessage}</p>
                     </div>
                   </div>
                 )}
