@@ -1,7 +1,6 @@
 // app/rewards/page.jsx
 "use client";
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 const RewardsPage = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -14,7 +13,6 @@ const RewardsPage = () => {
       description: 'Gain invaluable insights from a top university leader.',
       points: 1000,
       image: '/images/vc-mentorship.jpg',
-      popular: true
     },
     {
       id: 2,
@@ -30,233 +28,136 @@ const RewardsPage = () => {
       title: '₦100k Research Grant',
       description: 'Secure funding for your innovative research project.',
       points: 5000,
-      image: '/images/research-grant.jpg',
-      popular: true
-    },
-    {
-      id: 4,
-      category: 'academic',
-      title: 'Exclusive Library Access',
-      description: 'Get premium access to academic journals and research papers.',
-      points: 800,
-      image: '/images/library-access.jpg'
-    },
-    {
-      id: 5,
-      category: 'career',
-      title: 'Tech Industry Networking Event',
-      description: 'Connect with top tech professionals and recruiters.',
-      points: 1800,
-      image: '/images/networking-event.jpg'
-    },
-    {
-      id: 6,
-      category: 'funding',
-      title: 'Startup Seed Funding',
-      description: 'Get initial funding for your innovative startup idea.',
-      points: 7500,
-      image: '/images/startup-funding.jpg'
+      image: '/images/research-grant.jpg'
     }
   ];
 
-  const filteredRewards = activeFilter === 'all' 
-    ? rewards 
-    : rewards.filter(reward => reward.category === activeFilter);
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-blue-50">
-      {/* Header */}
-      <header className="sticky top-0 z-10 w-full bg-white/80 backdrop-blur-sm border-b border-slate-200">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4 md:px-8">
-          <div className="flex items-center gap-3">
-            <div className="bg-blue-600 p-2 rounded-lg">
-              <svg className="text-white" fill="none" height="32" viewBox="0 0 48 48" width="32" xmlns="http://www.w3.org/2000/svg">
-                <path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z" fill="currentColor"></path>
-              </svg>
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-xl font-bold tracking-tighter text-slate-900">DeepLearn Points</h1>
-              <p className="text-xs font-medium text-slate-500 -mt-1">Where Knowledge Becomes Currency</p>
-            </div>
+    <div className="bg-[#f8f9fb] text-[#0e131b] min-h-screen">
+      {/* Background pattern */}
+      <div className="fixed inset-0 z-0" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563eb' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+      }}></div>
+      
+      <div className="relative z-10">
+        
+        <main className="container mx-auto flex-1 px-4 py-8 md:px-10">
+          <div className="flex flex-col gap-2">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tighter">Rewards Marketplace</h2>
+            <p className="text-lg text-[#4a5568]">Redeem your DeepLearn Points for exclusive opportunities.</p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-100 hover:text-blue-600">
-              <span className="material-symbols-outlined">notifications</span>
-            </button>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-cover bg-center bg-gray-200 border-2 border-blue-500"></div>
-              <div className="hidden flex-col text-right sm:flex">
-                <span className="text-sm font-semibold">Tunde Adebayo</span>
-                <span className="text-xs text-amber-500 font-bold">12,345 pts</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8 md:px-8">
-        {/* Hero Section */}
-        <div className="mb-12 text-center">
-          <motion.h1 
-            className="text-4xl md:text-5xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-700"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Rewards Marketplace
-          </motion.h1>
-          <motion.p 
-            className="mt-4 text-lg text-slate-600 max-w-2xl mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            Redeem your DeepLearn Points for exclusive opportunities and experiences
-          </motion.p>
-          
-          <div className="mt-8 flex justify-center">
-            <div className="relative bg-white rounded-xl p-1 inline-flex shadow-md">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl -z-10 blur-md opacity-30"></div>
-              <div className="flex items-center px-4 py-2 bg-blue-600 rounded-lg text-white">
-                <span className="material-symbols-outlined mr-2">workspace_premium</span>
-                <span className="font-bold">12,345 Points</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="mb-10 flex flex-wrap items-center justify-center gap-3 pb-4">
-          <span className="text-sm font-medium text-slate-500">Filter by:</span>
-          {['all', 'academic', 'career', 'funding'].map((filter) => (
-            <motion.button
-              key={filter}
-              className={`flex h-10 items-center justify-center gap-x-2 rounded-lg px-4 shadow-sm transition-all ${
-                activeFilter === filter
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-slate-700 hover:shadow-md'
-              }`}
-              onClick={() => setActiveFilter(filter)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <p className="text-sm font-medium capitalize">
-                {filter === 'all' ? 'All Categories' : filter}
-              </p>
-            </motion.button>
-          ))}
-        </div>
-
-        {/* Rewards Grid */}
-        <motion.div 
-          className="grid grid-cols-1 gap-8 py-4 sm:grid-cols-2 lg:grid-cols-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <AnimatePresence>
-            {filteredRewards.map((reward) => (
-              <motion.div
-                key={reward.id}
-                className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-xl transition-all duration-300 hover:shadow-2xl relative"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                whileHover={{ y: -10 }}
-                layout
-              >
-                {reward.popular && (
-                  <div className="absolute top-4 right-4 z-10 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                    POPULAR
-                  </div>
-                )}
-                
-                <div className="relative h-48 w-full overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
-                  <div 
-                    className="h-full w-full bg-cover bg-center"
-                    style={{ backgroundImage: `url(${reward.image})` }}
-                  ></div>
-                  <div className="absolute bottom-4 left-4 z-20">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-white px-2 py-1 bg-blue-600 rounded">
-                      {reward.category}
-                    </span>
-                    <h3 className="mt-2 text-xl font-bold text-white">{reward.title}</h3>
-                  </div>
-                </div>
-                
-                <div className="flex flex-1 flex-col p-6">
-                  <p className="text-sm text-slate-600 flex-1">{reward.description}</p>
-                  
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="material-symbols-outlined text-amber-500 mr-1">star</span>
-                      <span className="text-lg font-bold text-amber-500">
-                        {reward.points.toLocaleString()} pts
-                      </span>
-                    </div>
-                    
-                    <motion.button 
-                      className="rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-md hover:shadow-lg transition-shadow"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Redeem
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* Empty State */}
-        {filteredRewards.length === 0 && (
-          <div className="text-center py-12">
-            <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mx-auto flex items-center justify-center text-gray-400">
-              <span className="material-symbols-outlined text-3xl">inventory</span>
-            </div>
-            <h3 className="mt-4 text-xl font-semibold text-gray-700">No rewards found</h3>
-            <p className="mt-2 text-gray-500">Try selecting a different category</p>
+          <div className="mt-8 flex flex-wrap items-center gap-4 border-b border-[#e8ebf3] pb-4">
+            <span className="text-sm font-medium text-[#4a5568]">Filter by:</span>
             <button 
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white px-4 shadow-sm transition-all ${
+                activeFilter === 'all' 
+                  ? 'shadow-md -translate-y-0.5' 
+                  : 'hover:shadow-md hover:-translate-y-0.5'
+              }`}
               onClick={() => setActiveFilter('all')}
             >
-              View All Rewards
+              <p className={`text-sm font-medium ${
+                activeFilter === 'all' 
+                  ? 'font-semibold text-[#2563eb]' 
+                  : 'text-[#4a5568]'
+              }`}>All Categories</p>
+            </button>
+            <button 
+              className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white px-4 shadow-sm transition-all ${
+                activeFilter === 'academic' 
+                  ? 'shadow-md -translate-y-0.5' 
+                  : 'hover:shadow-md hover:-translate-y-0.5'
+              }`}
+              onClick={() => setActiveFilter('academic')}
+            >
+              <p className={`text-sm font-medium ${
+                activeFilter === 'academic' 
+                  ? 'font-semibold text-[#2563eb]' 
+                  : 'text-[#4a5568]'
+              }`}>Academic</p>
+            </button>
+            <button 
+              className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white px-4 shadow-sm transition-all ${
+                activeFilter === 'career' 
+                  ? 'shadow-md -translate-y-0.5' 
+                  : 'hover:shadow-md hover:-translate-y-0.5'
+              }`}
+              onClick={() => setActiveFilter('career')}
+            >
+              <p className={`text-sm font-medium ${
+                activeFilter === 'career' 
+                  ? 'font-semibold text-[#2563eb]' 
+                  : 'text-[#4a5568]'
+              }`}>Career</p>
+            </button>
+            <button 
+              className={`flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-white px-4 shadow-sm transition-all ${
+                activeFilter === 'funding' 
+                  ? 'shadow-md -translate-y-0.5' 
+                  : 'hover:shadow-md hover:-translate-y-0.5'
+              }`}
+              onClick={() => setActiveFilter('funding')}
+            >
+              <p className={`text-sm font-medium ${
+                activeFilter === 'funding' 
+                  ? 'font-semibold text-[#2563eb]' 
+                  : 'text-[#4a5568]'
+              }`}>Funding</p>
             </button>
           </div>
-        )}
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-8">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-3 mb-4 md:mb-0">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <svg className="text-white" fill="none" height="24" viewBox="0 0 48 48" width="24" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z" fill="currentColor"></path>
-                </svg>
-              </div>
-              <div>
-                <h2 className="text-lg font-bold">DeepLearn Points</h2>
-                <p className="text-xs text-slate-500">Where Knowledge Becomes Currency</p>
+          
+          <div className="grid grid-cols-1 gap-8 py-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Academic Reward */}
+            <div className="flex transform flex-col overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+              <div className="h-48 w-full bg-cover bg-center" style={{
+                backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuDCVxZfuPGxXw2teZw6VD9xwvDpQ7ybLaiWR6jbuNdD2Y41eqh7x5qaZW0eBFL_JkCuVII20R5tD5raJuvBWXjRfBpLAHNjSPuJYlgfTIZFnR25ctFX2aXXUo_VBUN0qIcWQP1owtxe61666unNlEU6C4F8NDYPuCu_JFBh_U_Fif9gatQQuAQU_rzRjVRuEnXS5cjzM_hbpsY0Tb-Ns_Uy4HF6gCeuDtIKTWRTfJSzmTKwoXJrOmpcvhI-QI1H-ix8UStigUnA6Kk")`
+              }}></div>
+              <div className="flex flex-1 flex-col p-6">
+                <span className="text-sm font-semibold uppercase tracking-wide text-[#2563eb]">Academic</span>
+                <h3 className="mt-2 text-xl font-bold">Meet VC for Mentorship</h3>
+                <p className="mt-2 flex-1 text-sm text-[#4a5568]">Gain invaluable insights from a top university leader.</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-lg font-bold text-[#f59e0b]">1,000 pts</span>
+                  <button className="rounded-lg bg-[#10b981] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-500">Redeem</button>
+                </div>
               </div>
             </div>
             
-            <div className="flex gap-6">
-              <a href="#" className="text-slate-600 hover:text-blue-600">Terms</a>
-              <a href="#" className="text-slate-600 hover:text-blue-600">Privacy</a>
-              <a href="#" className="text-slate-600 hover:text-blue-600">Contact</a>
+            {/* Career Reward */}
+            <div className="flex transform flex-col overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+              <div className="h-48 w-full bg-cover bg-center" style={{
+                backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuBBLEP9dxQMfGU9T5qTG_YScXQswPixdufdAgXymZoGqDuq-Vs1tMOCz7PZMsi3vEPifkFRRh6-b53XPf4_b2I9e9fbuztYD_qAtfT_47Fz9Hm-rFio5G8TM-Hk8AdqQgERBMP3ft2SyXd5ZzCOBHlOc5PiDdFVrZpy90H6H0L1YrFgKRWJIAYGV0eorw97P5Bit-_ZDwbUCBSt2fnWcs8T_QWrla0UNkyAK-1Yv9HzZw8kngqP_ay_6m1QK7ztya0aaWl9uucpRcw")`
+              }}></div>
+              <div className="flex flex-1 flex-col p-6">
+                <span className="text-sm font-semibold uppercase tracking-wide text-[#2563eb]">Career</span>
+                <h3 className="mt-2 text-xl font-bold">PwC Nigeria Shadow Day</h3>
+                <p className="mt-2 flex-1 text-sm text-[#4a5568]">Experience a day in the life at a leading professional services firm.</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-lg font-bold text-[#f59e0b]">2,500 pts</span>
+                  <button className="rounded-lg bg-[#10b981] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-500">Redeem</button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Funding Reward */}
+            <div className="flex transform flex-col overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+              <div className="h-48 w-full bg-cover bg-center" style={{
+                backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuB9STiJr_Yd6NQ4o8zT-mfyGN_wB2tXhJS0XmTRnkD5_7Bf5wiql_yb7BbJQdNfuB_etuxtrfvAw7CzeOQqI7CKAPvD0FDV3wZz23abVrPIgre22o7Fy_mk3ayXbq8y5EoheYy3aG7jnoa4L048-UflESOZCmXEKdDeKoB-j11gVtJhQDqM60jKyUSCBM7dP-akOzQ_oZQsiejju1ZkuuEhTx2GBWrBfHy_TqL20NSf2iOTe9p7OVqXtDIOGV6XNpCed4vEIrkeCM4")`
+              }}></div>
+              <div className="flex flex-1 flex-col p-6">
+                <span className="text-sm font-semibold uppercase tracking-wide text-[#2563eb]">Funding</span>
+                <h3 className="mt-2 text-xl font-bold">₦100k Research Grant</h3>
+                <p className="mt-2 flex-1 text-sm text-[#4a5568]">Secure funding for your innovative research project.</p>
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-lg font-bold text-[#f59e0b]">5,000 pts</span>
+                  <button className="rounded-lg bg-[#10b981] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-emerald-500">Redeem</button>
+                </div>
+              </div>
             </div>
           </div>
-          
-          <div className="mt-8 text-center text-sm text-slate-500">
-            © {new Date().getFullYear()} DeepLearn Points. All rights reserved.
-          </div>
-        </div>
-      </footer>
+        </main>
+      </div>
     </div>
   );
 };
