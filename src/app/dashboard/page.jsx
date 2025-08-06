@@ -84,8 +84,8 @@ export default function Dashboard() {
   }, []); 
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
+    
+      <Sidebar>
       <div className="flex-1 overflow-y-auto">
         <div className="p-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-8">Dashboard</h1>
@@ -224,6 +224,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-    </div>
+    </Sidebar>
   );
 }

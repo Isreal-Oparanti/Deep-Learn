@@ -2,6 +2,28 @@
 import { useState } from "react";
 import Sidebar from '@/components/Sidebar';
 import Link from 'next/link';
+import { 
+  FaSchool, 
+  FaAward, 
+  FaLightbulb, 
+  FaPlus, 
+  FaTimes, 
+  FaFlask, 
+  FaRocket, 
+  FaCloudUploadAlt, 
+  FaPaperPlane, 
+  FaSync, 
+  FaCheckCircle, 
+  FaArchive, 
+  FaUser, 
+  FaStar, 
+  FaExclamationTriangle, 
+  FaHeading, 
+  FaList, 
+  FaFileAlt, 
+  FaPaperclip, 
+  FaPlay 
+} from 'react-icons/fa';
 
 export default function TasksPage() {
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
@@ -82,10 +104,16 @@ export default function TasksPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 overflow-y-auto bg-gray-50">
-        <div className="max-w-7xl mx-auto p-6">
+    <Sidebar>
+       <div
+        className={`w-full min-h-screen p-8 bg-white/80 backdrop-blur-sm`}
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%232563EB' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          fontFamily: "'Lexend', 'Noto Sans', sans-serif",
+        }}
+      >
+      <div className="p-6">
+        <div className="max-w-7xl mx-auto">
           {/* Header with Points */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
             <div>
@@ -95,7 +123,7 @@ export default function TasksPage() {
             
             <div className="flex items-center gap-3 bg-white px-5 py-3 rounded-xl shadow-sm border border-gray-200">
               <div className="bg-blue-100 p-2 rounded-lg">
-                <span className="material-symbols-outlined text-blue-600">workspace_premium</span>
+                <FaAward className="text-blue-600" />
               </div>
               <div>
                 <p className="text-xs text-gray-500">Your Points</p>
@@ -109,7 +137,7 @@ export default function TasksPage() {
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="bg-blue-100 p-2 rounded-lg">
-                  <span className="material-symbols-outlined text-blue-600">school</span>
+                  <FaSchool className="text-blue-600" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-800">Academic Tasks</h2>
               </div>
@@ -141,7 +169,7 @@ export default function TasksPage() {
                     
                     <div className="flex items-center gap-2 mb-4">
                       <div className="flex items-center text-yellow-500">
-                        <span className="material-symbols-outlined text-sm">star</span>
+                        <FaStar className="text-sm" />
                         <span className="text-sm font-bold ml-1">{task.points} pts</span>
                       </div>
                     </div>
@@ -152,8 +180,9 @@ export default function TasksPage() {
                     
                     <Link 
                       href={`/tasks/verification?taskId=${task.id}`}
-                      className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-center transition-colors"
+                      className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-center transition-colors flex items-center justify-center gap-2"
                     >
+                      <FaPlay />
                       Start Task
                     </Link>
                   </div>
@@ -167,7 +196,7 @@ export default function TasksPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-6">
               <div className="flex items-center gap-3">
                 <div className="bg-purple-100 p-2 rounded-lg">
-                  <span className="material-symbols-outlined text-purple-600">emoji_objects</span>
+                  <FaLightbulb className="text-purple-600" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-gray-800">Research & Innovation Hub</h2>
@@ -179,7 +208,7 @@ export default function TasksPage() {
                 onClick={() => setShowSubmissionForm(!showSubmissionForm)}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2.5 px-5 rounded-lg flex items-center gap-2 transition-colors whitespace-nowrap shadow-sm"
               >
-                <span className="material-symbols-outlined">{showSubmissionForm ? "close" : "add"}</span>
+                {showSubmissionForm ? <FaTimes /> : <FaPlus />}
                 {showSubmissionForm ? "Cancel" : "Submit Research/Idea"}
               </button>
             </div>
@@ -189,7 +218,7 @@ export default function TasksPage() {
               <div className="mt-6 bg-white rounded-xl p-6 shadow-sm border border-gray-200">
                 {submissionSuccess && (
                   <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
-                    <span className="material-symbols-outlined mr-2">check_circle</span>
+                    <FaCheckCircle className="mr-2" />
                     Your submission has been received! It's now pending verification.
                   </div>
                 )}
@@ -197,7 +226,8 @@ export default function TasksPage() {
                 <form onSubmit={handleSubmitInnovation}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2" htmlFor="title">
+                      <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2" htmlFor="title">
+                        <FaHeading className="text-sm" />
                         Title of Research/Innovation
                       </label>
                       <input
@@ -212,7 +242,10 @@ export default function TasksPage() {
                     </div>
                     
                     <div>
-                      <label className="block text-gray-700 font-medium mb-2">Category</label>
+                      <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+                        <FaList className="text-sm" />
+                        Category
+                      </label>
                       <div className="flex gap-4">
                         <label className="flex items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 flex-1">
                           <input
@@ -225,7 +258,7 @@ export default function TasksPage() {
                           />
                           <div>
                             <div className="flex items-center">
-                              <span className="material-symbols-outlined mr-1 text-blue-600">science</span>
+                              <FaFlask className="mr-1 text-blue-600" />
                               <span className="font-medium">Research</span>
                             </div>
                             <div className="text-xs text-gray-500">500 pts</div>
@@ -243,7 +276,7 @@ export default function TasksPage() {
                           />
                           <div>
                             <div className="flex items-center">
-                              <span className="material-symbols-outlined mr-1 text-purple-600">rocket_launch</span>
+                              <FaRocket className="mr-1 text-purple-600" />
                               <span className="font-medium">Innovation</span>
                             </div>
                             <div className="text-xs text-gray-500">750 pts</div>
@@ -256,7 +289,8 @@ export default function TasksPage() {
                   {/* Research-specific fields */}
                   {submissionCategory === "research" && (
                     <div className="mb-6">
-                      <label className="block text-gray-700 font-medium mb-2" htmlFor="hypothesis">
+                      <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2" htmlFor="hypothesis">
+                        <FaFlask className="text-sm" />
                         Research Hypothesis
                       </label>
                       <textarea
@@ -271,7 +305,8 @@ export default function TasksPage() {
                   {/* Innovation-specific fields */}
                   {submissionCategory === "innovation" && (
                     <div className="mb-6">
-                      <label className="block text-gray-700 font-medium mb-2" htmlFor="problem">
+                      <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2" htmlFor="problem">
+                        <FaExclamationTriangle className="text-sm" />
                         Problem Statement
                       </label>
                       <textarea
@@ -284,7 +319,8 @@ export default function TasksPage() {
                   )}
                   
                   <div className="mb-6">
-                    <label className="block text-gray-700 font-medium mb-2" htmlFor="description">
+                    <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2" htmlFor="description">
+                      <FaFileAlt className="text-sm" />
                       {submissionCategory === "research" ? "Research Methodology" : "Innovation Details"}
                     </label>
                     <textarea
@@ -302,13 +338,14 @@ export default function TasksPage() {
                   </div>
                   
                   <div className="mb-6">
-                    <label className="block text-gray-700 font-medium mb-2">
+                    <label className="block text-gray-700 font-medium mb-2 flex items-center gap-2">
+                      <FaPaperclip className="text-sm" />
                       {submissionCategory === "research" ? "Upload Research Paper" : "Upload Supporting Documents"}
                     </label>
                     <div className="flex items-center justify-center w-full">
                       <label htmlFor="file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <span className="material-symbols-outlined text-gray-400 text-3xl mb-2">cloud_upload</span>
+                          <FaCloudUploadAlt className="text-gray-400 text-3xl mb-2" />
                           <p className="mb-2 text-sm text-gray-500">
                             <span className="font-semibold">Click to upload</span> or drag and drop
                           </p>
@@ -329,7 +366,7 @@ export default function TasksPage() {
                     </div>
                     {selectedFile && (
                       <div className="mt-2 flex items-center text-sm text-gray-600 bg-green-50 p-2 rounded-lg">
-                        <span className="material-symbols-outlined mr-1 text-green-600">check_circle</span>
+                        <FaCheckCircle className="mr-1 text-green-600" />
                         {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
                       </div>
                     )}
@@ -343,12 +380,12 @@ export default function TasksPage() {
                     >
                       {isSubmitting ? (
                         <>
-                          <span className="material-symbols-outlined animate-spin">refresh</span>
+                          <FaSync className="animate-spin" />
                           Submitting...
                         </>
                       ) : (
                         <>
-                          <span className="material-symbols-outlined">send</span>
+                          <FaPaperPlane />
                           Submit for Verification
                         </>
                       )}
@@ -363,7 +400,7 @@ export default function TasksPage() {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="bg-blue-100 p-2 rounded-lg">
-                    <span className="material-symbols-outlined text-blue-600">inventory_2</span>
+                    <FaArchive className="text-blue-600" />
                   </div>
                   <h3 className="text-lg font-bold text-gray-800">Recent Submissions</h3>
                 </div>
@@ -375,7 +412,7 @@ export default function TasksPage() {
               
               {submissions.length === 0 ? (
                 <div className="bg-white rounded-xl p-8 text-center border border-dashed border-gray-300">
-                  <span className="material-symbols-outlined text-5xl text-gray-400 mb-4">science</span>
+                  <FaFlask className="text-5xl text-gray-400 mb-4" />
                   <p className="text-gray-600">No research or innovation submissions yet.</p>
                   <p className="text-gray-600 mt-2">Be the first to submit your work!</p>
                 </div>
@@ -416,14 +453,14 @@ export default function TasksPage() {
                               ? "bg-blue-100 text-blue-800" 
                               : "bg-purple-100 text-purple-800"
                           }`}>
-                            <span className="material-symbols-outlined align-middle text-sm mr-1">
-                              {submission.category === "research" ? "science" : "rocket_launch"}
-                            </span>
-                            {submission.category === "research" ? "Research" : "Innovation"}
+                            {submission.category === "research" ? 
+                              <><FaFlask className="align-middle text-sm mr-1" /> Research</> : 
+                              <><FaRocket className="align-middle text-sm mr-1" /> Innovation</>
+                            }
                           </span>
                           
                           <div className="flex items-center text-yellow-500">
-                            <span className="material-symbols-outlined text-sm">star</span>
+                            <FaStar className="text-sm" />
                             <span className="text-sm font-bold ml-1">{submission.points} pts</span>
                           </div>
                         </div>
@@ -434,13 +471,13 @@ export default function TasksPage() {
                         
                         <div className="flex justify-between items-center">
                           <span className="text-sm text-gray-500 flex items-center">
-                            <span className="material-symbols-outlined text-sm mr-1">person</span>
+                            <FaUser className="text-sm mr-1" />
                             {submission.submittedBy}
                           </span>
                           
                           {submission.status === "approved" && (
                             <span className="text-green-600 text-sm font-medium flex items-center">
-                              <span className="material-symbols-outlined mr-1">check_circle</span>
+                              <FaCheckCircle className="mr-1" />
                               Points Awarded
                             </span>
                           )}
@@ -454,6 +491,7 @@ export default function TasksPage() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </Sidebar>
   );
 }

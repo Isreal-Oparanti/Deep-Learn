@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '@/components/Sidebar1';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/AuthContext'; // Replaced useSession with useUser
 
