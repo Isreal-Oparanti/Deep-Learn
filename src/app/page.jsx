@@ -65,22 +65,24 @@ export default function Home() {
         <div className="container mx-auto flex items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute -inset-1 bg-blue-500 rounded-full blur opacity-75 animate-pulse"></div>
-              <div className="relative h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z" fill="currentColor"></path>
-                </svg>
-              </div>
+              
+              {/* <div className="relative h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg"> */}
+              <svg className="text-blue-600" fill="none" height="32" viewBox="0 0 24 24" width="32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+              </svg>
+              {/* </div> */}
             </div>
-            <h2 className="text-[#001f3f] text-2xl font-bold tracking-tighter">DeepLearn Points</h2>
+            <h2 className="text-blue-700  text-2xl font-bold tracking-tighter">DeepLearn</h2>
           </div>
           
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className=" hidden text-2xl md:flex items-center gap-8">
             {['About', 'How it Works', 'Rewards', 'Contact'].map((item) => (
               <a 
                 key={item}
-                className="text-base font-medium hover:text-blue-600 transition-colors relative group" 
-                href="#"
+                className="text-base text-2xl hover:text-blue-600 transition-colors relative group" 
+                href="/"
               >
                 {item}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 transition-all duration-300 group-hover:w-full"></span>

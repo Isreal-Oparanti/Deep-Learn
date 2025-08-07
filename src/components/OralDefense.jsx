@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useCallback } from 'react';
-import { useSpeechSynthesis } from 'react-speech-kit';
 
 export default function OralDefense({ questions, onSubmit }) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -8,8 +7,7 @@ export default function OralDefense({ questions, onSubmit }) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isEvaluating, setIsEvaluating] = useState(false);
   const [score, setScore] = useState(null);
-  const { speak, cancel, speaking } = useSpeechSynthesis();
-
+  
   // Initialize answers when questions change
   useEffect(() => {
     setAnswers(Array(questions.length).fill(''));
@@ -19,20 +17,32 @@ export default function OralDefense({ questions, onSubmit }) {
 
   // Automatically speak questions when they load or change
   useEffect(() => {
-    if (questions.length > 0 && !speaking) {
+    if (questions.length > 0 && !isSpeaking) {
       speakCurrentQuestion();
     }
   }, [currentQuestionIndex, questions]);
 
   const speakCurrentQuestion = useCallback(() => {
-    if (questions[currentQuestionIndex] && !speaking) {
+    if (questions[currentQuestionIndex] && !isSpeaking) {
+      // Cancel any ongoing speech
+      window.speechSynthesis.cancel();
+      
       setIsSpeaking(true);
-      speak({
-        text: questions[currentQuestionIndex],
-        onEnd: () => setIsSpeaking(false)
-      });
+      
+      const utterance = new SpeechSynthesisUtterance(questions[currentQuestionIndex]);
+      
+      utterance.onend = () => {
+        setIsSpeaking(false);
+      };
+      
+      utterance.onerror = () => {
+        setIsSpeaking(false);
+        console.error('Speech synthesis error');
+      };
+      
+      window.speechSynthesis.speak(utterance);
     }
-  }, [currentQuestionIndex, questions, speak, speaking]);
+  }, [currentQuestionIndex, questions, isSpeaking]);
 
   const handleAnswerChange = (e) => {
     const newAnswers = [...answers];
@@ -69,8 +79,10 @@ export default function OralDefense({ questions, onSubmit }) {
 
   // Cancel speech when component unmounts
   useEffect(() => {
-    return () => cancel();
-  }, [cancel]);
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, []);
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
@@ -119,7 +131,7 @@ export default function OralDefense({ questions, onSubmit }) {
               {questions[currentQuestionIndex]}
             </div>
           </div>
-
+          
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Your response:
@@ -132,7 +144,7 @@ export default function OralDefense({ questions, onSubmit }) {
               placeholder="Explain your approach..."
             />
           </div>
-
+          
           <div className="flex justify-between">
             <button
               onClick={speakCurrentQuestion}
