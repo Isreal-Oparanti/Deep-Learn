@@ -50,7 +50,7 @@ export default function Sidebar({ children }) {
           Loading DeepLearn...
         </p>
         <p className="text-sm text-gray-400 mt-1">
-          Where Knowledge Becomes Currency 💡
+          Where Knowledge Becomes Currency 
         </p>
       </div>
     );

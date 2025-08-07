@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import OralDefense from '@/components/OralDefense';
 import { useUser } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+import Loading from '@/components/Loading';
 
 const FALLBACK_QUESTIONS = [
   "Explain your approach to solving this problem?",
@@ -12,7 +13,7 @@ const FALLBACK_QUESTIONS = [
   "How would you extend this solution?"
 ];
 
-export default function DefensePage() {
+function DefenseContent() {
   const { user } = useUser();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function DefensePage() {
     
     fetchQuestions();
   }, [searchParams, router]);
-
+  
   const submitAnswers = async (answers) => {
     try {
       console.log("Submitting with attemptId:", attemptId);
@@ -88,35 +89,39 @@ export default function DefensePage() {
       throw error;
     }
   };
-
+  
   if (!attemptId || loading) {
     return (
-      <Sidebar>
-        <div className="p-2">
-          <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-              <p className="mt-4 text-lg">
-                {!attemptId ? "Loading task information..." : "Loading questions..."}
-              </p>
-            </div>
-          </div>
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+          <p className="mt-4 text-lg">
+            {!attemptId ? "Loading task information..." : "Loading questions..."}
+          </p>
         </div>
-      </Sidebar>
+      </div>
     );
   }
+  
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900">
+      <main className="container mx-auto px-2 py-8">
+        <OralDefense 
+          questions={questions} 
+          onSubmit={submitAnswers} 
+        />
+      </main>
+    </div>
+  );
+}
 
+export default function DefensePage() {
   return (
     <Sidebar>
       <div className="p-2">
-        <div className="min-h-screen bg-slate-50 text-slate-900">
-          <main className="container mx-auto px-2 py-8">
-            <OralDefense 
-              questions={questions} 
-              onSubmit={submitAnswers} 
-            />
-          </main>
-        </div>
+        <Suspense fallback={<Loading />}>
+          <DefenseContent />
+        </Suspense>
       </div>
     </Sidebar>
   );
