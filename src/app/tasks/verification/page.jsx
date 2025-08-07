@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import Sidebar from '@/components/Sidebar1';
+import Sidebar from '@/components/Sidebar';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/AuthContext'; // Replaced useSession with useUser
 
@@ -220,7 +220,7 @@ export default function TaskVerification() {
                           isRecording ? "" : "ml-1"
                         }`}
                       >
-                        {isRecording ? "stop" : "play_arrow"}
+                        {isRecording ? "stop" : "play"}
                       </span>
                     </button>
                   </div>

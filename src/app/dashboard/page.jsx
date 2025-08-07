@@ -107,11 +107,11 @@ export default function Dashboard() {
                   style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuCDvWPt7JrEkh0jPnYSj1eI910Xs-vJW8MxFTl-O7eiIOaEWTbrNcvu5hU7idcGClgCissYwn4-agUrArlYzYk4__dke6lCFjX0BMcz7MSpITyWtuL8WK0QpTjgw0NpT1d1Ji1Fewl0lu0CWWQNXqBqJdpgk5HbSThRrpHjjZxp8RkGo3EuY_IRNoaDsL85GDzMsUWSk_m9OPa_HzCPiag3npEaZcyIu2X5cWvu8WuLwAKbYRkjckB2BapMrXKo_xBoi3MLfy2gpU8')" }}
                 ></div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">Welcome back, Aisha!</h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Welcome back, Isreal!</h2>
                   <p className="text-gray-500">University of Lagos</p>
                   <div className="mt-4 bg-[#4677b8]/10 p-4 rounded-xl">
                     <p className="text-sm font-medium text-[#4677b8]">Total DeepLearn Points</p>
-                    <p className="text-3xl font-bold text-[#4677b8]">1,250</p>
+                    <p className="text-3xl font-bold text-[#4677b8]">50</p>
                   </div>
                 </div>
               </div>

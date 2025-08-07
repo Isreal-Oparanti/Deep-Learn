@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '@/context/AuthContext';
 import { FiSend, FiBookOpen, FiAlertCircle, FiArrowUp } from 'react-icons/fi';
-import Sidebar from '@/components/Sidebar1';
+import Sidebar from '@/components/Sidebar';
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';

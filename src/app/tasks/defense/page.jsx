@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Sidebar from '@/components/Sidebar1';
+import Sidebar from '@/components/Sidebar';
 import OralDefense from '@/components/OralDefense';
 import { useUser } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';

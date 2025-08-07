@@ -79,7 +79,7 @@ export default function TasksPage() {
       points: submissionCategory === "research" ? 500 : 750,
       status: "pending",
       description: submissionDescription,
-      submittedBy: "You", // In real app, this would be the user's name
+      submittedBy: "You", 
       fileName: selectedFile ? selectedFile.name : "No file attached"
     };
     
