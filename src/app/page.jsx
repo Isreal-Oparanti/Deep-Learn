@@ -1,20 +1,37 @@
 "use client"
 import Image from "next/image";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isClient, setIsClient] = useState(false);
 
+  // Set client-side flag
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Handle scroll events only on client-side
+  useEffect(() => {
+    if (!isClient) return;
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
       
-      // Determine active section for scroll indicator
+      // Update scroll progress
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.body.scrollHeight;
+      const progress = (scrollY / (documentHeight - windowHeight)) * 100;
+      setScrollProgress(progress);
+      
+      // Determine active section
       const sections = ['home', 'features', 'rewards'];
       for (const section of sections) {
         const element = document.getElementById(section);
-        if (element && window.scrollY < element.offsetTop + element.offsetHeight / 2) {
+        if (element && scrollY < element.offsetTop + element.offsetHeight / 2) {
           setActiveSection(section);
           break;
         }
@@ -22,10 +39,15 @@ export default function Home() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    handleScroll(); // Initialize values
 
-  const scrollToSection = (sectionId) => {
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isClient]);
+
+  // Safe scroll function
+  const scrollToSection = useCallback((sectionId) => {
+    if (!isClient) return;
+    
     const element = document.getElementById(sectionId);
     if (element) {
       window.scrollTo({
@@ -33,11 +55,17 @@ export default function Home() {
         behavior: 'smooth'
       });
     }
-  };
+  }, [isClient]);
 
   return (
     <div className="font-sans bg-gradient-to-b from-[#f8f9fa] to-[#e9ecef] text-[#343a40] min-h-screen relative overflow-x-hidden">
      
+      {/* Fixed: Use state variable instead of direct window access */}
+      <div className="fixed top-0 left-0 h-1 bg-blue-500 z-50 transition-all duration-300" 
+           style={{ width: `${scrollProgress}%` }}>
+      </div>
+     
+      {/* Rest of your component remains the same */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[...Array(10)].map((_, i) => (
           <div 
@@ -54,30 +82,21 @@ export default function Home() {
           />
         ))}
       </div>
-
-     
-      <div className="fixed top-0 left-0 h-1 bg-blue-500 z-50 transition-all duration-300" 
-           style={{ width: `${(window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100}%` }}>
-      </div>
-
      
       <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md shadow-lg py-2' : 'bg-transparent py-4'}`}>
         <div className="container mx-auto flex items-center justify-between px-6">
           <div className="flex items-center gap-3">
             <div className="relative">
-              
-              {/* <div className="relative h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg"> */}
               <svg className="text-blue-600" fill="none" height="32" viewBox="0 0 24 24" width="32" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                 <path d="M2 17L12 22L22 17" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
                 <path d="M2 12L12 17L22 12" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
               </svg>
-              {/* </div> */}
             </div>
-            <h2 className="text-blue-700  text-2xl font-bold tracking-tighter">DeepLearn</h2>
+            <h2 className="text-blue-700 text-2xl font-bold tracking-tighter">DeepLearn</h2>
           </div>
           
-          <nav className=" hidden text-2xl md:flex items-center gap-8">
+          <nav className="hidden text-2xl md:flex items-center gap-8">
             {['About', 'How it Works', 'Rewards', 'Contact'].map((item) => (
               <a 
                 key={item}
@@ -94,23 +113,18 @@ export default function Home() {
             <button className="group relative flex min-w-[90px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-transparent text-[#001f3f] text-base font-bold leading-normal tracking-wide border-3 border-[#001f3f] transition-all duration-300">
               <a href="/login">
                 <span className="relative z-10 truncate">Login</span>
-                {/* <span className="absolute inset-0 bg-[#001f3f] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span> */}
-                {/* <span className="absolute inset-0 text-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left truncate">Login</span> */}
               </a>
             </button>
             <button className="relative flex min-w-[90px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-11 px-5 bg-gradient-to-r from-blue-500 to-blue-700 text-white text-base font-bold leading-normal tracking-wide shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
               <a href="/register">
                 <span className="truncate">Sign Up</span>
-                {/* <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-800 opacity-0 hover:opacity-100 transition-opacity duration-300"></span> */}
               </a>
             </button>
           </div>
         </div>
       </header>
-
       
       <section id="home" className="relative min-h-[calc(100vh-80px)] flex items-center justify-center text-white overflow-hidden">
-      
         <div className="absolute inset-0">
           <div 
             className="absolute inset-0 bg-cover bg-center"
@@ -118,7 +132,6 @@ export default function Home() {
           ></div>
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/80"></div>
           
-         
           {[...Array(15)].map((_, i) => (
             <div 
               key={i}
@@ -190,17 +203,14 @@ export default function Home() {
           </div>
         </div>
         
-       
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <svg className="w-6 h-6 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
           </svg>
         </div>
       </section>
-
       
       <section id="features" className="py-20 md:py-32 bg-gradient-to-b from-white to-blue-50 relative">
-         
         <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-blue-50 to-transparent"></div>
         
         <div className="container mx-auto px-6 relative z-10">
@@ -217,7 +227,6 @@ export default function Home() {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8">
-           
             <div className="group relative flex flex-col items-center text-center p-8 rounded-2xl bg-white shadow-lg border border-blue-100 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-50 rounded-full opacity-70 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative mb-5 p-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
@@ -235,7 +244,6 @@ export default function Home() {
               </div>
             </div>
             
-           
             <div className="group relative flex flex-col items-center text-center p-8 rounded-2xl bg-white shadow-lg border border-blue-100 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-50 rounded-full opacity-70 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative mb-5 p-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
@@ -253,7 +261,6 @@ export default function Home() {
               </div>
             </div>
             
-           
             <div className="group relative flex flex-col items-center text-center p-8 rounded-2xl bg-white shadow-lg border border-blue-100 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 overflow-hidden">
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-50 rounded-full opacity-70 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative mb-5 p-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg group-hover:shadow-blue-500/30 transition-all duration-300">
@@ -272,7 +279,6 @@ export default function Home() {
             </div>
           </div>
           
-          
           <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
               { value: "10K+", label: "Active Learners" },
@@ -288,15 +294,13 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       
       <section id="rewards" className="py-20 md:py-32 relative overflow-hidden">
-       
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-blue-700"></div>
         <div className="absolute inset-0 opacity-10">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+CiAgPGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIgZmlsbD0iI2ZmZiIvPgo8L3N2Zz4=')] bg-repeat"></div>
         </div>
-       
+        
         {[...Array(20)].map((_, i) => (
           <div 
             key={i}
@@ -367,7 +371,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      
       {/* Testimonials Section */}
       <section className="py-20 md:py-32 bg-gradient-to-b from-blue-50 to-white">
         <div className="container mx-auto px-6">
@@ -429,7 +433,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      
       {/* Footer */}
       <footer className="bg-[#001f3f] text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
@@ -441,9 +445,11 @@ export default function Home() {
             <div className="md:col-span-2">
               <div className="flex items-center gap-3 mb-4">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg">
-                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M44 11.2727C44 14.0109 39.8386 16.3957 33.69 17.6364C39.8386 18.877 44 21.2618 44 24C44 26.7382 39.8386 29.123 33.69 30.3636C39.8386 31.6043 44 33.9891 44 36.7273C44 40.7439 35.0457 44 24 44C12.9543 44 4 40.7439 4 36.7273C4 33.9891 8.16144 31.6043 14.31 30.3636C8.16144 29.123 4 26.7382 4 24C4 21.2618 8.16144 18.877 14.31 17.6364C8.16144 16.3957 4 14.0109 4 11.2727C4 7.25611 12.9543 4 24 4C35.0457 4 44 7.25611 44 11.2727Z" fill="currentColor"></path>
-                  </svg>
+                  <svg className="text-blue-600" fill="none" height="32" viewBox="0 0 24 24" width="32" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"></path>
+              </svg>
                 </div>
                 <h2 className="text-2xl font-bold tracking-tighter">DeepLearn Points</h2>
               </div>
@@ -494,7 +500,7 @@ export default function Home() {
           </div>
         </div>
       </footer>
-
+      
       {/* Custom CSS for animations */}
       <style jsx global>{`
         @keyframes float {
